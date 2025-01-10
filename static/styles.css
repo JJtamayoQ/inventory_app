@@ -16,15 +16,6 @@ a {
     margin: 10px 0;
 }
 
-/* Contenedor sin uso */
-.container-2 {
-    margin: 0 auto;
-    background: #fff;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-}
-
 .form-group {
     margin-bottom: 15px;
 }
@@ -34,14 +25,6 @@ a {
     font-weight: bold;
     margin-bottom: 5px;
     color: #555;
-}
-
-table {
-    width: auto;
-    border-collapse: collapse;
-    margin: 20px 0;
-    font-size: 18px;
-    text-align: left;
 }
 
 table td {
