@@ -124,7 +124,7 @@
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                            <button type="submit" class="btn btn-primary btn-success" name="submit" value="Submit" onclick="sendForm()">Guardar cambios</button>
+                            <button type="submit" class="btn btn-success" name="submit" value="Submit" onclick="sendForm()">Guardar cambios</button>
                         </div>
                     </form>
                 </div>
@@ -161,22 +161,22 @@
                                 <label for="entry-new-quantity" class="form-label">Cantidad</label>
                                 <div class="row">
                                     <div class="col">
-                                        <button type="button" class="add-button" 
+                                        <button type="button" class="btn btn-primary add" 
                                             onmousedown="startChange(-1)"
                                             onmouseup="stopChange()"
                                             onmouseleave="stopChange()">
-                                            <i class="bi bi-dash" style="font-size: 1.5rem;"></i>
+                                            <i class="bi bi-dash"></i>
                                         </button>
                                     </div>
                                     <div class="col">
                                         <input type="number" class="form-control" id="entry-new-quantity" name="new_quantity" min="0" required readonly>
                                     </div>
                                     <div class="col">
-                                        <button type="button" class="add-button"
+                                        <button type="button" class="btn btn-primary add"
                                             onmousedown="startChange(1)"
                                             onmouseup="stopChange()"
                                             onmouseleave="stopChange()">
-                                            <i class="bi bi-plus" style="font-size: 1.5rem;"></i>
+                                            <i class="bi bi-plus"></i>
                                         </button>
                                     </div>
                                 </div>
@@ -184,7 +184,7 @@
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                            <button type="submit" class="btn btn-primary">Actualizar</button>
+                            <button type="submit" class="btn btn-success">Actualizar</button>
                         </div>
                     </form>
                 </div>
