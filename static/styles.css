@@ -1,0 +1,167 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f9;
+    color: #333;
+    margin: 20px;
+}
+
+h1,h2 {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    color: #333;
+}
+
+a {
+    display: block;
+    margin: 10px 0;
+}
+
+/* Contenedor sin uso */
+.container-2 {
+    margin: 0 auto;
+    background: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: #555;
+}
+
+table {
+    width: auto;
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-size: 18px;
+    text-align: left;
+}
+
+table td {
+    border: 1px solid #ddd;
+    padding: 12px;
+}
+
+.add-button {
+    display: inline-block;
+    width: 100%;
+    height: 100%;
+    background-color: #4CAF50;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    border: none;
+}
+
+.add-button:hover {
+    background-color: #45a049;
+}
+
+.form-group select,
+.form-group input[type="number"],
+.form-group input[type="text"] {
+    width: 100%;
+    padding: 8px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+
+label {
+    font-weight: bold;
+    display: block;
+    margin-bottom: 5px;
+}
+
+/* Formato de cantidad nueva*/
+.quantity-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 15 px;
+    width: 100%;
+}
+
+.quantity-control {
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.quantity-control button {
+    width: 50px;
+    height: 38px;
+    font-size: 1.5rem;
+    color: #fff;
+    background-color: #4CAF50;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.quantity-control button:hover {
+    background-color: #45a049;
+}
+
+.quantity-control button:active {
+    transform: scale(0.95);
+}
+
+.quantity-control input[type="number"] {
+    text-align: center;
+    width: 60px;
+    height: 38px;
+    font-size: 1rem;
+    margin: 0 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+button[type="submit"] {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    display: inline-block;
+    width: 100%;
+}
+
+.modal-footer button[type="button"] {
+    background-color: #a1a1a1;
+    color: white;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    display: inline-block;
+    width: 100%;
+}
+
+button[type="submit"]:hover {
+    background-color: #45a049;
+}
+
+.back-link {
+    display: block;
+    margin-top: 20px;
+    text-align: center;
+    text-decoration: none;
+    color: #4CAF50;
+    font-weight: bold;
+}
+
+.back-link:hover {
+    text-decoration: underline;
+}
