@@ -9,6 +9,9 @@ sheet_name = 'Inventario'  # Cambia el nombre de la hoja si es diferente
 columnas_a_exportar = ['id', 'Elemento_Movimiento', 'Cantidad_Actual', 'Empaque', 'Lugar']
 df = pd.read_excel(excel_file, sheet_name=sheet_name, usecols=columnas_a_exportar)
 
+# Agregar la columna Cantidad_Inicial para el control del estado del insumo
+df['Cantidad_Inicial'] = df['Cantidad_Actual']
+
 # Mostrar el DataFrame para verificar los datos
 print(df)
 

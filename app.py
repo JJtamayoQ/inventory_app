@@ -12,7 +12,39 @@ def index():
     conn.row_factory = sqlite3.Row
     items = conn.execute('SELECT * FROM insumos').fetchall()
     conn.close()
-    return render_template('index.html', items=items)
+    
+    # Calcula el estado para cada insumo
+    processed_items = []
+    for item in items:
+        id, nombre, cantidad_actual, empaque, ubicacion, cantidad_inicial = item
+        
+        try:
+            # Cantidad inicial diferente de cero
+            if cantidad_inicial <= 0:
+                raise ValueError("Cantidad inicial debe ser mayor a cero.")
+            
+            # Determina el estado
+            if cantidad_actual/cantidad_inicial >= 0.7:
+                estado = 'success'  # Verde
+            elif cantidad_actual/cantidad_inicial >= 0.3:
+                estado = 'warning'  # Amarillo
+            else:
+                estado = 'danger'   # Rojo
+
+        except ValueError as e:
+            estado = 'danger' # Rojo
+
+        processed_items.append({
+            "id": id,
+            "nombre": nombre,
+            "cantidad_actual": cantidad_actual,
+            "cantidad_inicial": cantidad_inicial,
+            "empaque": empaque,
+            "ubicacion": ubicacion,
+            "estado": estado
+        })
+
+    return render_template('index.html', processed_items=processed_items)
 
 # Ruta para modificar el registro de insumos
 @app.route('/edit', methods=('GET', 'POST'))
