@@ -37,7 +37,6 @@ df_insumos['Lugar'] = df_insumos['Lugar'].astype(str)
 # - Dar el formato correcto a cada columna númerica
 df_insumos['Cantidad'] = pd.to_numeric(df_insumos['Cantidad'])
 
-
 # CREACIÓN DE BASES DE DATOS Y TABLAS CONTENIDAS
 # Paso 1: Extraer empaques y ubicaciones únicas
 df_empaques = df_insumos[['Empaque']].drop_duplicates().reset_index(drop=True)
@@ -71,10 +70,9 @@ df_estado = pd.DataFrame({
     'Estado': ['success','warning','danger']
 })
 
-
-## BASE DE DATOS usuarios.db
+## BASE DE DATOS inventario.db
 # Conectar a la base de datos SQLite (creará 'inventario.db' si no existe)
-conn = sqlite3.connect('personal.db')
+conn = sqlite3.connect('inventario.db')
 cursor = conn.cursor()
 
 # Crear las tablas en SQLite
@@ -88,21 +86,6 @@ CREATE TABLE IF NOT EXISTS trabajadores (
 )
 ''')
 
-# Insertar datos en la tabla desde el dataframe
-df_usuarios.to_sql('trabajadores', conn, if_exists='append', index=False)
-
-# Confirmar los cambios
-conn.commit()
-
-# Cerrar la conexión
-conn.close()
-
-## BASE DE DATOS inventario.db
-# Conectar a la base de datos SQLite (creará 'inventario.db' si no existe)
-conn = sqlite3.connect('inventario.db')
-cursor = conn.cursor()
-
-# Crear las tablas en SQLite
 cursor.execute('''
 CREATE TABLE IF NOT EXISTS empaques (
     Empaque_id INTEGER PRIMARY KEY,
@@ -140,7 +123,20 @@ CREATE TABLE IF NOT EXISTS insumos (
 )
 ''')
 
+cursor.execute('''
+CREATE TABLE IF NOT EXISTS historial (
+    Historial_id INTEGER PRIMARY KEY,
+    Tipo TEXT NOT NULL,
+    Detalles TEXT,
+    Trabajador_id INTEGER NOT NULL,
+    Item_id INTEGER NOT NULL,
+    FOREIGN KEY (Trabajador_id) REFERENCES trabajadores (Trabajador_id),
+    FOREIGN KEY (Item_id) REFERENCES insumos (Item_id)
+)
+''')
+
 # Insertar datos en las tablas desde los dataframes
+df_usuarios.to_sql('trabajadores', conn, if_exists='append', index=False)
 df_empaques.to_sql('empaques', conn, if_exists='append', index=False)
 df_estado.to_sql('estados', conn, if_exists='append', index=False)
 df_ubicaciones.to_sql('ubicaciones', conn, if_exists='append', index=False)
