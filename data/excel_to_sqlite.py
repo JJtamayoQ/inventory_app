@@ -1,21 +1,32 @@
 import pandas as pd
+import numpy as np
 import sqlite3
 
-# Nombre del archivo de Excel y la hoja
+# Nombre del archivo de Excel y la hoja de insumos
 excel_file = 'INVENTARIO INSUMOS.xlsx'
-sheet_name = 'Inventario'  # Cambia el nombre de la hoja si es diferente
+sheet_name = 'Inventario'
 
-# Leer el archivo de Excel en un DataFrame
+# Leer el archivo de Excel insumos en un DataFrame
 columnas_a_exportar = ['Nombre', 'Detalles', 'Cantidad', 'Empaque', 'Lugar']
 df_insumos = pd.read_excel(excel_file, sheet_name=sheet_name, usecols=columnas_a_exportar)
 
+# Nombre del archivo de Excel y la hoja de usuarios
+excel_file = 'USUARIOS_UD.xlsx'
+sheet_name = 'Usuarios'
+
+# Leer el archivo de Excel usuarios en un DataFrame
+columnas_a_exportar = ['Nombre_Apellido', 'Dependencia', 'Cargo', 'Correo']
+df_usuarios = pd.read_excel(excel_file, sheet_name=sheet_name, usecols=columnas_a_exportar)
+
 # SE REALIZA LA LIMPIEZA DE LOS DATOS
+# - Eliminar filas con campos vacíos del dataframe de usuarios
+df_usuarios.dropna(inplace=True)
 # - Remplazar campos de texto vacíos
 df_insumos['Nombre'] = df_insumos['Nombre'].fillna('Sin definir')
 df_insumos['Detalles'] = df_insumos['Detalles'].fillna('Sin definir')
 df_insumos['Empaque'] = df_insumos['Empaque'].fillna('Sin definir')
 df_insumos['Lugar'] = df_insumos['Lugar'].fillna('Sin definir')
-# Remplazar campos numéricos con 0
+# - Remplazar campos numéricos con 0
 df_insumos['Cantidad'] = df_insumos['Cantidad'].fillna(0)
 
 # - Dar el formato correcto a cada columna de texto
@@ -26,6 +37,8 @@ df_insumos['Lugar'] = df_insumos['Lugar'].astype(str)
 # - Dar el formato correcto a cada columna númerica
 df_insumos['Cantidad'] = pd.to_numeric(df_insumos['Cantidad'])
 
+
+# CREACIÓN DE BASES DE DATOS Y TABLAS CONTENIDAS
 # Paso 1: Extraer empaques y ubicaciones únicas
 df_empaques = df_insumos[['Empaque']].drop_duplicates().reset_index(drop=True)
 df_ubicaciones = df_insumos[['Lugar']].drop_duplicates().reset_index(drop=True)
@@ -48,9 +61,43 @@ df_insumos.drop(columns=['Lugar'], inplace=True)
 # Agregar la columna Cantidad_Inicial para el control del estado del insumo
 df_insumos['Cantidad_Inicial'] = df_insumos['Cantidad']
 
-# Mostrar el DataFrame para verificar los datos
-print(df_insumos)
+# Definir el estado de cada insumo
+df_insumos['Estado_id'] = np.where(df_insumos['Cantidad'] == 0, 3, 1)
+print(df_insumos['Estado_id'])
 
+# Crear el dataframe de estado
+df_estado = pd.DataFrame({
+    'Estado_id': [1,2,3],
+    'Estado': ['success','warning','danger']
+})
+
+
+## BASE DE DATOS usuarios.db
+# Conectar a la base de datos SQLite (creará 'inventario.db' si no existe)
+conn = sqlite3.connect('personal.db')
+cursor = conn.cursor()
+
+# Crear las tablas en SQLite
+cursor.execute('''
+CREATE TABLE IF NOT EXISTS trabajadores (
+    Trabajador_id INTEGER PRIMARY KEY,
+    Nombre_Apellido TEXT NOT NULL,
+    Dependencia TEXT NOT NULL,
+    Cargo TEXT NOT NULL,
+    Correo TEXT NOT NULL 
+)
+''')
+
+# Insertar datos en la tabla desde el dataframe
+df_usuarios.to_sql('trabajadores', conn, if_exists='append', index=False)
+
+# Confirmar los cambios
+conn.commit()
+
+# Cerrar la conexión
+conn.close()
+
+## BASE DE DATOS inventario.db
 # Conectar a la base de datos SQLite (creará 'inventario.db' si no existe)
 conn = sqlite3.connect('inventario.db')
 cursor = conn.cursor()
@@ -60,6 +107,13 @@ cursor.execute('''
 CREATE TABLE IF NOT EXISTS empaques (
     Empaque_id INTEGER PRIMARY KEY,
     Empaque TEXT NOT NULL
+)
+''')
+
+cursor.execute('''
+CREATE TABLE IF NOT EXISTS estados (
+    Estado_id INTEGER PRIMARY KEY,
+    Estado TEXT NOT NULL
 )
 ''')
 
@@ -77,8 +131,10 @@ CREATE TABLE IF NOT EXISTS insumos (
     Detalles TEXT,
     Cantidad INTEGER NOT NULL,
     Cantidad_Inicial INTEGER NOT NULL,
-    Ubicacion_id INTEGER,
-    Empaque_id INTEGER,
+    Estado_id INTEGER NOT NULL,
+    Ubicacion_id INTEGER NOT NULL,
+    Empaque_id INTEGER NOT NULL,
+    FOREIGN KEY (Estado_id) REFERENCES estados (Estado_id),
     FOREIGN KEY (Ubicacion_id) REFERENCES ubicaciones (Ubicacion_id),
     FOREIGN KEY (Empaque_id) REFERENCES empaques (Empaque_id)
 )
@@ -86,6 +142,7 @@ CREATE TABLE IF NOT EXISTS insumos (
 
 # Insertar datos en las tablas desde los dataframes
 df_empaques.to_sql('empaques', conn, if_exists='append', index=False)
+df_estado.to_sql('estados', conn, if_exists='append', index=False)
 df_ubicaciones.to_sql('ubicaciones', conn, if_exists='append', index=False)
 df_insumos.to_sql('insumos', conn, if_exists='append', index=False)
 
@@ -94,5 +151,3 @@ conn.commit()
 
 # Cerrar la conexión
 conn.close()
-
-#print("Datos exportados exitosamente a 'inventario.db'")
