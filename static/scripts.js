@@ -39,7 +39,7 @@ entryModal.addEventListener('show.bs.modal', event => {
     entryModalIdInput.value = id;
     entryModalNameInput.value = name;
     entryModalQuantityInput.value = quantity;
-    entryModalNewQuantityInput.value = 0;
+    entryModalNewQuantityInput.value = 1;
 });
 
 const deleteModal = document.getElementById('deleteModal');
@@ -82,9 +82,9 @@ function changeQuantity(amount) {
 
     currentValue += amount;
 
-    // Asegurarse de que no sea menor que 0
-    if (currentValue < 0) {
-        currentValue = 0;
+    // Asegurarse de que no sea menor que 1
+    if (currentValue <= 0) {
+        currentValue = 1;
     }
     
     // En caso de salidas, el max es la cantidad actual
@@ -103,5 +103,3 @@ function startChange(amount) {
 function stopChange() {
     clearInterval(intervalId);
 }
-
-function setZeroValue(){entryModalNewQuantityInput.value = 0;}

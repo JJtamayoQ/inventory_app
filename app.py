@@ -3,48 +3,49 @@ from flask import Flask, render_template, request, redirect, url_for, flash, jso
 import sqlite3
 
 app = Flask(__name__)
-app.secret_key = 'St4kes_55*'  # Cambia esto por una clave segura
+app.secret_key = 'St4kes_55*'  # Clave segura
 
+# Definir el estado para el valor nuevo de cantidad
+def getQuantityStatus(former_quantity, new_quantity):
+    if former_quantity != 0:
+        if new_quantity / former_quantity >= 0.7:
+            return 'success' # Verde
+        elif new_quantity / former_quantity >= 0.3:
+            return 'warning' # Amarillo
+        else:
+            return 'danger' # Rojo
+    else:
+        return 'danger' # Rojo
+    
 # Ruta principal para mostrar el inventario
 @app.route('/')
 def index():
+    # Conectar a la base de datos SQLite
     conn = sqlite3.connect('inventario.db')
-    conn.row_factory = sqlite3.Row
-    items = conn.execute('SELECT * FROM insumos').fetchall()
+    cursor = conn.cursor()
+
+    # Realizar la consulta para mostrar tabla de insumos
+    items = cursor.execute('''
+    SELECT
+        insumos.Item_id,
+        insumos.Nombre,
+        estados.Estado,
+        insumos.Cantidad,
+        empaques.Empaque,
+        ubicaciones.Lugar AS Ubicacion
+    FROM insumos
+    INNER JOIN estados ON insumos.Estado_id = estados.Estado_id
+    INNER JOIN empaques ON insumos.Empaque_id = empaques.Empaque_id
+    INNER JOIN ubicaciones ON insumos.Ubicacion_id = ubicaciones.Ubicacion_id;
+    ''').fetchall()
     conn.close()
-    
-    # Calcula el estado para cada insumo
-    processed_items = []
-    for item in items:
-        id, nombre, cantidad_actual, empaque, ubicacion, cantidad_inicial = item
-        
-        try:
-            # Cantidad inicial diferente de cero
-            if cantidad_inicial <= 0:
-                raise ValueError("Cantidad inicial debe ser mayor a cero.")
-            
-            # Determina el estado
-            if cantidad_actual/cantidad_inicial >= 0.7:
-                estado = 'success'  # Verde
-            elif cantidad_actual/cantidad_inicial >= 0.3:
-                estado = 'warning'  # Amarillo
-            else:
-                estado = 'danger'   # Rojo
 
-        except ValueError as e:
-            estado = 'danger' # Rojo
+    ## Transformal la lista de tuplas en lista de diccionarios JSON friendly
+    # Índices de las columnas
+    colums = ["id","nombre","estado","cantidad","empaque","ubicacion"]
+    items_dict = [dict(zip(colums, row)) for row in items]
 
-        processed_items.append({
-            "id": id,
-            "nombre": nombre,
-            "cantidad_actual": cantidad_actual,
-            "cantidad_inicial": cantidad_inicial,
-            "empaque": empaque,
-            "ubicacion": ubicacion,
-            "estado": estado
-        })
-
-    return render_template('index.html', processed_items=processed_items)
+    return render_template('index.html', items=items_dict)
 
 # Ruta para modificar el registro de insumos
 @app.route('/edit', methods=('GET', 'POST'))
@@ -81,23 +82,46 @@ def update_quantity():
         current_quantity = int(request.form['quantity'])
         quantity = int(request.form['new_quantity'])
 
-        if not id:
+        if not id or not action or not current_quantity or not quantity:
             flash('Todos los campos son obligatorios.')
         else:
-            # Actualiza todos los campos del insumo seleccionado
+            # Actualiza campos cantidad y estado del insumo seleccionado
             conn = sqlite3.connect('inventario.db')
             cursor = conn.cursor()
             if action == 'add':
                 new_quantity = current_quantity + quantity
             else:
                 new_quantity = current_quantity - quantity
-            cursor.execute("UPDATE insumos SET \
-                           Cantidad_Actual = ? \
-                           WHERE id = ?", (new_quantity, id))
+            
+            # Se obtiene cantidad inicial
+            former_quantity = cursor.execute('''
+            SELECT 
+                Cantidad_Inicial
+            FROM insumos
+            WHERE Item_id = ?
+            ''', (id)).fetchone()
+
+            # Se obtiene el nuevo estado de cantidad
+            state = getQuantityStatus(int(former_quantity[0]), new_quantity)
+
+            cursor.execute('''
+            UPDATE insumos
+            SET 
+                Cantidad = ?,
+                Estado_id = (
+                    SELECT Estado_id
+                    FROM estados
+                    WHERE Estado = ?
+                )
+            WHERE Item_id = ?;
+            ''', (new_quantity, state, id))
+
+            # Se confirma el cambio y cierra la conexión
             conn.commit()
             conn.close()
             return redirect(url_for('index'))
         
+# Ruta para eliminar registro de insumos
 @app.route('/delete_item', methods=('GET', 'POST'))
 def delete_item():
     if request.method == 'POST':
@@ -106,7 +130,7 @@ def delete_item():
         if not id:
             flash('Todos los campos son obligatorios.')
         else:
-            # Actualiza todos los campos del insumo seleccionado
+            # Elimina el registro del insumo seleccionado
             conn = sqlite3.connect('inventario.db')
             cursor = conn.cursor()
             cursor.execute("DELETE FROM insumos \

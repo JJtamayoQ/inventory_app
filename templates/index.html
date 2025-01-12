@@ -50,7 +50,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for item in processed_items %}
+                    {% for item in items %}
                         <tr>
                             <td>
                                 <button type="button" class="btn btn-primary" 
@@ -58,7 +58,7 @@
                                 data-bs-target="#editModal" 
                                 data-bs-id="{{ item.id }}"
                                 data-bs-name="{{ item.nombre }}"
-                                data-bs-quantity="{{ item.cantidad_actual }}"
+                                data-bs-quantity="{{ item.cantidad }}"
                                 data-bs-package="{{ item.empaque }}"
                                 data-bs-location="{{ item.ubicacion }}">
                                     <i class="bi bi-pencil-square"></i>
@@ -72,14 +72,14 @@
                                     else "Crítico"  }}
                                 </span>
                             </td>
-                            <td>{{ item.cantidad_actual }}</td>
+                            <td>{{ item.cantidad }}</td>
                             <td>
                                 <button type="button" class="btn btn-secondary"
                                 data-bs-toggle="modal"
                                 data-bs-target="#entryModal"
                                 data-bs-id="{{ item.id }}"
                                 data-bs-name="{{ item.nombre }}"
-                                data-bs-quantity="{{ item.cantidad_actual }}">
+                                data-bs-quantity="{{ item.cantidad }}">
                                     <i class="bi bi-plus-slash-minus"></i>
                                 </button>
                             </td>
@@ -176,7 +176,7 @@
                                         </button>
                                     </div>
                                     <div class="col">
-                                        <input type="number" class="form-control" id="entry-new-quantity" name="new_quantity" min="0" required readonly>
+                                        <input type="number" class="form-control" id="entry-new-quantity" name="new_quantity" min="1" required readonly>
                                     </div>
                                     <div class="col">
                                         <button type="button" class="btn btn-primary add"

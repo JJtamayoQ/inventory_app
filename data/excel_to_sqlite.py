@@ -129,6 +129,7 @@ CREATE TABLE IF NOT EXISTS historial (
     Tipo TEXT NOT NULL,
     Detalles TEXT,
     Trabajador_id INTEGER NOT NULL,
+    Fecha DATETIME NOT NULL,
     Item_id INTEGER NOT NULL,
     FOREIGN KEY (Trabajador_id) REFERENCES trabajadores (Trabajador_id),
     FOREIGN KEY (Item_id) REFERENCES insumos (Item_id)
@@ -147,4 +148,3 @@ conn.commit()
 
 # Cerrar la conexión
 conn.close()
-
