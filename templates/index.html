@@ -127,11 +127,19 @@
                             </div>
                             <div class="mb-3">
                                 <label for="edit-package" class="form-label">Empaque</label>
-                                <select class="form-select" id="edit-package" name="package" required></select>
+                                <select class="form-select" id="edit-package" name="package" required>
+                                    {% for package in packages %}
+                                    <option value="{{ package.id }}">{{ package.nombre }}</option>
+                                    {% endfor %}
+                                </select>
                             </div>
                             <div class="mb-3">
                                 <label for="edit-location" class="form-label">Ubicación</label>
-                                <select class="form-select" id="edit-location" name="location" required></select>
+                                <select class="form-select" id="edit-location" name="location" required>
+                                    {% for location in locations %}
+                                    <option value="{{ location.id }}">{{ location.nombre }}</option>
+                                    {% endfor %}
+                                </select>
                             </div>
                         </div>
                         <div class="modal-footer">

@@ -21,10 +21,8 @@ editModal.addEventListener('show.bs.modal', event => {
     editModalNameInput.value = name;
     editModalDetailsInput.value = details;
     editModalQuantityInput.value = quantity;
-
-    // Se cargan las listas de opciones de Empaques y Ubicación
-    loadOptions(package_id, location_id);
-    
+    editModalPackageSelect.value = package_id;
+    editModalLocationSelect.value = location_id;
 });
 
 const entryModal = document.getElementById('entryModal');
@@ -110,38 +108,3 @@ function stopChange() {
 }
 
 function setZeroValue(){entryModalNewQuantityInput.value = 1;}
-
-async function loadOptions(package_id, location_id) {
-    try {
-        // Obtener datos desde la API
-        const response = await fetch('/get_package_location');
-        const data = await response.json();
-
-        // Limpiar las opciones actuales
-        editModalPackageSelect.innerHTML = '';
-        editModalLocationSelect.innerHTML = '';
-
-        // Agregar cada empaque como una nueva opción
-        data.package.forEach(package => {
-            const option = document.createElement('option');
-            option.value = package.id; // Asignar el valor del Empaque_id
-            option.textContent = package.nombre; // Texto visible
-            editModalPackageSelect.appendChild(option);
-        });
-
-        // Agregar cada ubicación como una nueva opción
-        data.location.forEach(location => {
-            const option = document.createElement('option');
-            option.value = location.id; // Asignar el valor del Empaque_id
-            option.textContent = location.nombre; // Texto visible
-            editModalLocationSelect.appendChild(option);
-        });
-
-        // Se establece la opción original por defecto
-        editModalPackageSelect.value = package_id;
-        editModalLocationSelect.value = location_id;
-
-    } catch(error) {
-        console.error('Error al cargar la lista',error);
-    }
-}

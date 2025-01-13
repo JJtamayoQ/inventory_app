@@ -41,14 +41,31 @@ def index():
     INNER JOIN empaques ON insumos.Empaque_id = empaques.Empaque_id
     INNER JOIN ubicaciones ON insumos.Ubicacion_id = ubicaciones.Ubicacion_id;
     ''').fetchall()
+
+    packages = cursor.execute('''
+    SELECT * FROM empaques;
+    ''').fetchall()
+
+    locations = cursor.execute('''
+    SELECT * FROM ubicaciones;
+    ''').fetchall()
+
     conn.close()
 
     ## Transforma la lista de tuplas en lista de diccionarios JSON friendly
     # Índices de las columnas
-    colums = ["id","nombre","detalles","estado","cantidad","empaque","empaque_id","ubicacion","ubicacion_id"]
-    items_dict = [dict(zip(colums, row)) for row in items]
+    colums_items = ["id","nombre","detalles","estado","cantidad","empaque",
+              "empaque_id","ubicacion","ubicacion_id"]
+    colums_package = ["id",'nombre']
+    colums_location = ["id",'nombre']
+    items_dict = [dict(zip(colums_items, row)) for row in items]
+    package_dict = [dict(zip(colums_package, row)) for row in packages]
+    location_dict = [dict(zip(colums_location, row)) for row in locations]
 
-    return render_template('index.html', items=items_dict)
+    return render_template('index.html', 
+                           items=items_dict, 
+                           packages=package_dict, 
+                           locations=location_dict)
 
 # Ruta para modificar el registro de insumos
 @app.route('/edit', methods=('GET', 'POST'))
@@ -155,29 +172,10 @@ def delete_item():
             conn = sqlite3.connect('inventario.db')
             cursor = conn.cursor()
             cursor.execute("DELETE FROM insumos \
-                           WHERE id = ?", (id,))
+                           WHERE Item_id = ?", (id,))
             conn.commit()
             conn.close()
             return redirect(url_for('index'))
-        
-# Ruta para obtener los empaques desde SQLite
-@app.route('/get_package_location', methods=['GET'])
-def get_package_location():
-    conn = sqlite3.connect('inventario.db')
-    cursor = conn.cursor()
-
-    # Consultar los datos de las tablas empaques y ubicaciones
-    cursor.execute('SELECT * FROM empaques')
-    result_pack = cursor.fetchall()
-    cursor.execute('SELECT * FROM ubicaciones')
-    result_loc = cursor.fetchall()
-    conn.close()
-
-    # Convertir los resultados en una lista de diccionarios
-    package = [{"id": fila[0], "nombre": fila[1]} for fila in result_pack]
-    location = [{"id": fila[0], "nombre": fila[1]} for fila in result_loc]
-
-    return jsonify({"package":package,"location":location}) # Devuelve los datos en formato JSON
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
