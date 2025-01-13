@@ -29,10 +29,13 @@ def index():
     SELECT
         insumos.Item_id,
         insumos.Nombre,
+        insumos.Detalles,
         estados.Estado,
         insumos.Cantidad,
         empaques.Empaque,
-        ubicaciones.Lugar AS Ubicacion
+        insumos.Empaque_id,
+        ubicaciones.Lugar,
+        insumos.Ubicacion_id
     FROM insumos
     INNER JOIN estados ON insumos.Estado_id = estados.Estado_id
     INNER JOIN empaques ON insumos.Empaque_id = empaques.Empaque_id
@@ -40,9 +43,9 @@ def index():
     ''').fetchall()
     conn.close()
 
-    ## Transformal la lista de tuplas en lista de diccionarios JSON friendly
+    ## Transforma la lista de tuplas en lista de diccionarios JSON friendly
     # Índices de las columnas
-    colums = ["id","nombre","estado","cantidad","empaque","ubicacion"]
+    colums = ["id","nombre","detalles","estado","cantidad","empaque","empaque_id","ubicacion","ubicacion_id"]
     items_dict = [dict(zip(colums, row)) for row in items]
 
     return render_template('index.html', items=items_dict)
@@ -53,7 +56,8 @@ def edit():
     if request.method == 'POST':
         id = request.form['id']
         name = request.form['name']
-        quantity = request.form['quantity']
+        details = request.form['details']
+        quantity = int(request.form['quantity'])
         package = request.form['package']
         location = request.form['location']
         
@@ -63,12 +67,29 @@ def edit():
             # Actualiza todos los campos del insumo seleccionado
             conn = sqlite3.connect('inventario.db')
             cursor = conn.cursor()
-            cursor.execute("UPDATE insumos SET \
-                           Elemento_Movimiento = ?, \
-                           Cantidad_Actual = ?, \
-                           Empaque = ?, \
-                           Lugar = ? \
-                           WHERE id = ?", (name, quantity, package, location, id))
+
+            # Al modificar un insumo la cantidad se convierte en cantidad_inicial
+            if quantity <= 0:
+                quantity = 0
+                state = 'danger' # Rojo
+            else: state = 'success' # Verde
+
+            cursor.execute('''
+            UPDATE insumos
+            SET
+                Nombre = ?,
+                Detalles = ?,
+                Cantidad = ?,
+                Cantidad_Inicial = ?,
+                Estado_id = (
+                    SELECT Estado_id
+                    FROM estados
+                    WHERE Estado = ?
+                ),
+                Ubicacion_id = ?,
+                Empaque_id = ?
+            WHERE Item_id = ?;
+            ''', (name, details, quantity, quantity, state, location, package, id))
             conn.commit()
             conn.close()
             return redirect(url_for('index'))
@@ -138,6 +159,25 @@ def delete_item():
             conn.commit()
             conn.close()
             return redirect(url_for('index'))
+        
+# Ruta para obtener los empaques desde SQLite
+@app.route('/get_package_location', methods=['GET'])
+def get_package_location():
+    conn = sqlite3.connect('inventario.db')
+    cursor = conn.cursor()
+
+    # Consultar los datos de las tablas empaques y ubicaciones
+    cursor.execute('SELECT * FROM empaques')
+    result_pack = cursor.fetchall()
+    cursor.execute('SELECT * FROM ubicaciones')
+    result_loc = cursor.fetchall()
+    conn.close()
+
+    # Convertir los resultados en una lista de diccionarios
+    package = [{"id": fila[0], "nombre": fila[1]} for fila in result_pack]
+    location = [{"id": fila[0], "nombre": fila[1]} for fila in result_loc]
+
+    return jsonify({"package":package,"location":location}) # Devuelve los datos en formato JSON
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)

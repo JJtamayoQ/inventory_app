@@ -26,7 +26,7 @@ df_insumos['Nombre'] = df_insumos['Nombre'].fillna('Sin definir')
 df_insumos['Detalles'] = df_insumos['Detalles'].fillna('Sin definir')
 df_insumos['Empaque'] = df_insumos['Empaque'].fillna('Sin definir')
 df_insumos['Lugar'] = df_insumos['Lugar'].fillna('Sin definir')
-# - Remplazar campos numéricos con 0
+# - Remplazar campos numéricos null con 0
 df_insumos['Cantidad'] = df_insumos['Cantidad'].fillna(0)
 
 # - Dar el formato correcto a cada columna de texto
@@ -36,6 +36,12 @@ df_insumos['Empaque'] = df_insumos['Empaque'].astype(str)
 df_insumos['Lugar'] = df_insumos['Lugar'].astype(str)
 # - Dar el formato correcto a cada columna númerica
 df_insumos['Cantidad'] = pd.to_numeric(df_insumos['Cantidad'])
+
+# - Eliminar espacios al inici y al final de los campos de texto
+df_insumos['Nombre'] = df_insumos['Nombre'].str.strip()
+df_insumos['Detalles'] = df_insumos['Detalles'].str.strip()
+df_insumos['Empaque'] = df_insumos['Empaque'].str.strip()
+df_insumos['Lugar'] = df_insumos['Lugar'].str.strip()
 
 # CREACIÓN DE BASES DE DATOS Y TABLAS CONTENIDAS
 # Paso 1: Extraer empaques y ubicaciones únicas

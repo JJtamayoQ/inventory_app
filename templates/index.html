@@ -58,9 +58,10 @@
                                 data-bs-target="#editModal" 
                                 data-bs-id="{{ item.id }}"
                                 data-bs-name="{{ item.nombre }}"
+                                data-bs-details="{{ item.detalles }}"
                                 data-bs-quantity="{{ item.cantidad }}"
-                                data-bs-package="{{ item.empaque }}"
-                                data-bs-location="{{ item.ubicacion }}">
+                                data-bs-package_id="{{ item.empaque_id }}"
+                                data-bs-location_id="{{ item.ubicacion_id }}">
                                     <i class="bi bi-pencil-square"></i>
                                 </button>
                             </td>
@@ -117,21 +118,25 @@
                                 <input type="text" class="form-control" id="edit-name" name="name" required>
                             </div>
                             <div class="mb-3">
+                                <label for="edit-details" class="form-label">Detalles</label>
+                                <textarea class="form-control" id="edit-details" name="details" placeholder="Agregue detalles del insumo aquí"></textarea>
+                            </div>
+                            <div class="mb-3">
                                 <label for="edit-quantity" class="form-label">Cantidad</label>
                                 <input type="number" class="form-control" id="edit-quantity" name="quantity" min="0" required>
                             </div>
                             <div class="mb-3">
                                 <label for="edit-package" class="form-label">Empaque</label>
-                                <input type="text" class="form-control" id="edit-package" name="package">
+                                <select class="form-select" id="edit-package" name="package" required></select>
                             </div>
                             <div class="mb-3">
                                 <label for="edit-location" class="form-label">Ubicación</label>
-                                <input type="text" class="form-control" id="edit-location" name="location">
+                                <select class="form-select" id="edit-location" name="location" required></select>
                             </div>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                            <button type="submit" class="btn btn-success" name="submit" value="Submit" onclick="sendForm()">Guardar cambios</button>
+                            <button type="submit" class="btn btn-success">Guardar cambios</button>
                         </div>
                     </form>
                 </div>
