@@ -50,22 +50,29 @@ def index():
     SELECT * FROM ubicaciones;
     ''').fetchall()
 
+    workers = cursor.execute('''
+    SELECT Trabajador_id, Nombre_Apellido FROM trabajadores;
+    ''').fetchall()
+
     conn.close()
 
     ## Transforma la lista de tuplas en lista de diccionarios JSON friendly
     # Índices de las columnas
     colums_items = ["id","nombre","detalles","estado","cantidad","empaque",
               "empaque_id","ubicacion","ubicacion_id"]
-    colums_package = ["id",'nombre']
-    colums_location = ["id",'nombre']
+    colums_package = ["id","nombre"]
+    colums_location = ["id","nombre"]
+    colums_worker = ["id","nombre"]
     items_dict = [dict(zip(colums_items, row)) for row in items]
-    package_dict = [dict(zip(colums_package, row)) for row in packages]
-    location_dict = [dict(zip(colums_location, row)) for row in locations]
+    packages_dict = [dict(zip(colums_package, row)) for row in packages]
+    locations_dict = [dict(zip(colums_location, row)) for row in locations]
+    workers_dict = [dict(zip(colums_worker, row)) for row in workers]
 
     return render_template('index.html', 
                            items=items_dict, 
-                           packages=package_dict, 
-                           locations=location_dict)
+                           packages=packages_dict, 
+                           locations=locations_dict,
+                           workers=workers_dict)
 
 # Ruta para modificar el registro de insumos
 @app.route('/edit', methods=('GET', 'POST'))

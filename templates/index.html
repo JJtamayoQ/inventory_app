@@ -141,6 +141,15 @@
                                     {% endfor %}
                                 </select>
                             </div>
+                            <div class="mb-3">
+                                <label for="edit-worker" class="form-label">Responsable</label>
+                                <select class="form-select" id="edit-worker" name="edit-worker" required>
+                                    <option selected value="">Seleccione una opción</option>
+                                    {% for worker in workers %}
+                                    <option value="{{ worker.id }}">{{ worker.nombre }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
@@ -177,7 +186,7 @@
                                     <option value="subtract">Retirar</option>
                                 </select>
                             </div>
-                            <div class="container text-center">
+                            <div class="mb-3 text-center">
                                 <label for="entry-new-quantity" class="form-label">Cantidad</label>
                                 <div class="row">
                                     <div class="col">
@@ -201,6 +210,15 @@
                                     </div>
                                 </div>
                             </div>
+                            <div class="mb-3">
+                                <label for="entry-worker" class="form-label">Responsable</label>
+                                <select class="form-select" id="entry-worker" name="entry-worker" required>
+                                    <option selected value="">Seleccione una opción</option>
+                                    {% for worker in workers %}
+                                    <option value="{{ worker.id }}">{{ worker.nombre }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
@@ -223,6 +241,15 @@
                         <div class="modal-body">
                             <input type="hidden" name="id" id="delete-id">
                             <p>¿Está seguro de que desea eliminar <strong id="delete-name"></strong> del inventario?</p>
+                            <div class="mb-3">
+                                <label for="delete-worker" class="form-label">Responsable</label>
+                                <select class="form-select" id="delete-worker" name="delete-worker" required>
+                                    <option selected value="">Seleccione una opción</option>
+                                    {% for worker in workers %}
+                                    <option value="{{ worker.id }}">{{ worker.nombre }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
