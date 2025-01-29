@@ -6,11 +6,23 @@ $(document).ready( function () {
     var tableHistory = $('#history-table').DataTable({
         dom: 'ltip'
     });
+    var tableInactive = $('#inactive-table').DataTable({
+        dom: 'ltip'
+    });
+    var tableWorkers = $('#workers-table').DataTable({
+        dom: 'ltip'
+    });
 
     $('#searchFilter').on('keyup', function() {
         tableInventory.search(this.value).draw();
     });
     $('#searchFilter').on('keyup', function() {
-        tableInventory.search(this.value).draw();
+        tableHistory.search(this.value).draw();
+    });
+    $('#searchFilter').on('keyup', function() {
+        tableInactive.search(this.value).draw();
+    });
+    $('#searchFilter').on('keyup', function() {
+        tableWorkers.search(this.value).draw();
     });
 } );

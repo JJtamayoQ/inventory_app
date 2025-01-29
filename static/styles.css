@@ -32,10 +32,6 @@ nav {
     text-align: center;
 }
 
-#inventory-table, #history-table {
-    text-align: center;
-}
-
 .add {
     display: inline-block;
     width: 100%;

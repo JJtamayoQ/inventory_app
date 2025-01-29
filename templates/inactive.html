@@ -40,10 +40,86 @@
                         <a class="nav-link" href="{{ url_for('workers') }}">Trabajadores</a>
                     </li>
                 </ul>
+                <form class="d-flex ms-auto" role="search">
+                    <input class="form-control" id="searchFilter" type="search" placeholder="Search" aria-label="Search">
+                </form>
             </div>
         </div>
     </nav>
 
+    <!-- Tabla de insumos inactivos -->
+    <div class="table-responsive">
+        <table class="table table-striped table-hover align-middle" id="inactive-table">
+            <thead class="table-secondary">
+                <tr>
+                    <th>Insumo</th>
+                    <th>Detalles</th>
+                    <th>Cantidad</th>
+                    <th>Empaque</th>
+                    <th>Ubicación</th>
+                    <th>Activar</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in items %}
+                    <tr>
+                        <td>{{ item.nombre }}</td>
+                        <td>{{ item.detalles }}</td>
+                        <td>{{ item.cantidad }}</td>
+                        <td>{{ item.empaque }}</td>
+                        <td>{{ item.ubicacion }}</td>
+                        <td>
+                            <button type="button" class="btn btn-success"
+                            data-bs-toggle="modal"
+                            data-bs-target="#activateModal"
+                            data-bs-id="{{ item.id }}"
+                            data-bs-name="{{ item.nombre }}">
+                                <i class="bi bi-check2-circle"></i>
+                            </button>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Modals -->
+    <!-- Modal Activar Insumo -->
+    <div class="modal fade" id="activateModal" tabindex="-1" aria-labelledby="activateModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form method="post" action="/activate_item">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="activateModalLabel">Activar Insumo</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" name="id" id="activate-id">
+                        <p>¿Está seguro de que desea activar nuevamente <strong id="activate-name"></strong> en el inventario?</p>
+                        <div class="container worker">
+                            <div class="mb-3">
+                                <label for="activate-worker" class="form-label">Responsable</label>
+                                <select class="form-select" id="activate-worker" name="worker" required>
+                                    <option selected value="">Seleccione una opción</option>
+                                    {% for worker in workers %}
+                                        <option value="{{ worker.id }}">{{ worker.nombre }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="activate-comment" class="form-label">Comentarios</label>
+                                <textarea class="form-control" id="activate-comment" name="comment" placeholder="Agregue una descripción de la edición si es necesario"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-success">Aceptar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

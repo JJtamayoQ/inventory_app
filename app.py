@@ -1,4 +1,3 @@
-
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 import sqlite3
 
@@ -40,7 +39,8 @@ def index():
     FROM insumos
     INNER JOIN estados ON insumos.Estado_id = estados.Estado_id
     INNER JOIN empaques ON insumos.Empaque_id = empaques.Empaque_id
-    INNER JOIN ubicaciones ON insumos.Ubicacion_id = ubicaciones.Ubicacion_id;
+    INNER JOIN ubicaciones ON insumos.Ubicacion_id = ubicaciones.Ubicacion_id
+    WHERE insumos.Activo = TRUE;
     ''').fetchall()
 
     packages = cursor.execute('''
@@ -75,13 +75,63 @@ def index():
                            locations=locations_dict,
                            workers=workers_dict)
 
+# Ruta para mostra lista de insumos inactivos
 @app.route('/inactive')
 def inactive():
-    return render_template('inactive.html')
+    # Conectar a la base de datos SQLite
+    conn = sqlite3.connect('inventario.db')
+    cursor = conn.cursor()
 
+    # Realizar la consulta para mostrar tabla de insumos
+    items = cursor.execute('''
+    SELECT
+        insumos.Item_id,
+        insumos.Activo,
+        insumos.Nombre,
+        insumos.Detalles,
+        insumos.Cantidad,
+        empaques.Empaque,
+        ubicaciones.Lugar
+    FROM insumos
+    INNER JOIN empaques ON insumos.Empaque_id = empaques.Empaque_id
+    INNER JOIN ubicaciones ON insumos.Ubicacion_id = ubicaciones.Ubicacion_id
+    WHERE insumos.Activo = FALSE;
+    ''').fetchall()
+
+    workers = cursor.execute('''
+    SELECT Trabajador_id, Nombre_Apellido FROM trabajadores;
+    ''').fetchall()
+
+    conn.close()
+
+    ## Transforma la lista de tuplas en lista de diccionarios JSON friendly
+    # Índices de las columnas
+    colums_items = ["id","activo","nombre","detalles","cantidad","empaque","ubicacion"]
+    colums_worker = ["id","nombre"]
+    items_dict = [dict(zip(colums_items, row)) for row in items]
+    workers_dict = [dict(zip(colums_worker, row)) for row in workers]
+
+    return render_template('inactive.html', items=items_dict, workers=workers_dict)
+
+# Ruta para mostra la lista de trabajadores
 @app.route('/workers')
 def workers():
-    return render_template('workers.html')
+    # Conectar a la base de datos SQLite
+    conn = sqlite3.connect('inventario.db')
+    cursor = conn.cursor()
+
+    workers = cursor.execute('''
+    SELECT * FROM trabajadores;
+    ''').fetchall()
+
+    conn.close()
+
+    ## Transforma la lista de tuplas en lista de diccionarios JSON friendly
+    # Índices de las columnas
+    colums_worker = ["id","nombre","dependencia","cargo","correo"]
+    workers_dict = [dict(zip(colums_worker, row)) for row in workers]
+
+    return render_template('workers.html', workers=workers_dict)
 
 # Ruta para mostrar el historial
 @app.route('/history')
@@ -222,7 +272,7 @@ def update_quantity():
             conn.close()
             return redirect(url_for('index'))
         
-# Ruta para eliminar registro de insumos
+# Ruta para desactivar registro de insumos
 @app.route('/delete_item', methods=('GET', 'POST'))
 def delete_item():
     if request.method == 'POST':
@@ -254,7 +304,41 @@ def delete_item():
             conn.commit()
             conn.close()
             
-            return redirect(url_for('index'))      
+            return redirect(url_for('index'))
+
+# Ruta para activar el registro de insumos
+@app.route('/activate_item',methods=('GET', 'POST'))
+def activate_item():
+    if request.method == 'POST':
+        id = request.form['id']
+        worker_id = request.form['worker']
+        comment = request.form['comment']
+
+        if not id or not worker_id:
+            flash('Todos los campos son obligatorios.')
+        else:
+            conn = sqlite3.connect('inventario.db')
+            cursor = conn.cursor()
+
+            # Desactiva el insumo para no mostrarlo más
+            cursor.execute('''
+            UPDATE insumos
+            SET
+                Activo = ?
+            WHERE Item_id = ?;
+            ''',(True, id))
+
+            # Registra en el historial de cambios
+            cursor.execute('''
+            INSERT INTO historial (Tipo, Detalles, Trabajador_id, Fecha, Item_id)
+            VALUES (?,?,?,DATETIME('now'),?);
+            ''',("Eliminar", comment, worker_id, id))
+
+            # Se confirma el cambio y cierra la conexión
+            conn.commit()
+            conn.close()
+            
+            return redirect(url_for('inactive'))
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5001)
