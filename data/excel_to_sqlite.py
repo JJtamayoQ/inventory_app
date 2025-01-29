@@ -37,7 +37,7 @@ df_insumos['Lugar'] = df_insumos['Lugar'].astype(str)
 # - Dar el formato correcto a cada columna númerica
 df_insumos['Cantidad'] = pd.to_numeric(df_insumos['Cantidad'])
 
-# - Eliminar espacios al inici y al final de los campos de texto
+# - Eliminar espacios al inicio y al final de los campos de texto
 df_insumos['Nombre'] = df_insumos['Nombre'].str.strip()
 df_insumos['Detalles'] = df_insumos['Detalles'].str.strip()
 df_insumos['Empaque'] = df_insumos['Empaque'].str.strip()
@@ -65,6 +65,8 @@ df_insumos.drop(columns=['Lugar'], inplace=True)
 
 # Agregar la columna Cantidad_Inicial para el control del estado del insumo
 df_insumos['Cantidad_Inicial'] = df_insumos['Cantidad']
+# Agregar la columna 'Activo' para deshabilitar("eliminar") insumos
+df_insumos['Activo'] = [True]*df_insumos['Nombre'].size
 
 # Definir el estado de cada insumo
 df_insumos['Estado_id'] = np.where(df_insumos['Cantidad'] == 0, 3, 1)
@@ -116,6 +118,7 @@ CREATE TABLE IF NOT EXISTS ubicaciones (
 cursor.execute('''
 CREATE TABLE IF NOT EXISTS insumos (
     Item_id INTEGER PRIMARY KEY,
+    Activo BOOL NOT NULL,
     Nombre TEXT NOT NULL,
     Detalles TEXT,
     Cantidad INTEGER NOT NULL,

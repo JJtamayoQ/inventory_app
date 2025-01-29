@@ -2,7 +2,6 @@ body {
     font-family: Arial, sans-serif;
     background-color: #f4f4f9;
     color: #333;
-    margin: 20px;
 }
 
 h1,h2 {
@@ -21,6 +20,22 @@ button:active{
     transform: scale(0.95);
 }
 
+.table-responsive {
+    margin: 20px;
+}
+
+nav {
+    text-align: center;
+}
+
+.dt-info {
+    text-align: center;
+}
+
+#inventory-table, #history-table {
+    text-align: center;
+}
+
 .add {
     display: inline-block;
     width: 100%;
@@ -29,4 +44,12 @@ button:active{
 
 .modal-content label{
     text-align: left;
+}
+
+.worker {
+    padding: 2%;
+    margin-top: 2%;
+    margin-bottom: 2%;
+    border-radius: 10px;
+    background-color: #ccc;
 }
