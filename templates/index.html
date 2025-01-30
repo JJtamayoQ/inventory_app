@@ -46,6 +46,7 @@
             </div>
         </div>
     </nav>
+
     <!-- Tabla de insumos -->
     <div class="table-responsive">
         <table class="table table-striped table-hover align-middle" id="inventory-table">
@@ -111,6 +112,18 @@
                 {% endfor %}
             </tbody>
         </table>
+    </div>
+
+    <div class="container text-center">
+        <div class="row justify-content-center">
+            <div class="col-">
+                <button type="button" class="btn btn-success"
+                data-bs-toggle="modal"
+                data-bs-target="#addModal">
+                    Añadir Insumo
+                </button>
+            </div>
+        </div>
     </div>
 
     <!-- Modales -->
@@ -283,6 +296,36 @@
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                         <button type="submit" class="btn btn-danger">Eliminar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Añadir Insumos -->
+    <div class="modal fade" id="addModal" tabindex="-1" aria-labelledby="addModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <form method="post" action="/add_item">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="addModalLabel">Añadir insumos</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <input type="text" class="form-control" id="addName">
+                                <label for="addName" class="form-label">Nombre del insumo</label>
+                            </div>
+                            <div class="col-md-4">
+                                <input type="number" class="form-control" id="addDetails">
+                                <label for="addDetails" class="form-label">Cantidad</label>
+                            </div>
+                            <div class="col-md-4">
+                                <input type="text" class="form-control" id="addQuantity">
+                                <label for="addQuantity" class="form-label">Empaque</label>
+                            </div>
+                        </div>
                     </div>
                 </form>
             </div>
