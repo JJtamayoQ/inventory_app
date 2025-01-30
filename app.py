@@ -307,7 +307,7 @@ def delete_item():
             return redirect(url_for('index'))
 
 # Ruta para activar el registro de insumos
-@app.route('/activate_item',methods=('GET', 'POST'))
+@app.route('/activate_item', methods=('GET', 'POST'))
 def activate_item():
     if request.method == 'POST':
         id = request.form['id']
@@ -316,6 +316,7 @@ def activate_item():
 
         if not id or not worker_id:
             flash('Todos los campos son obligatorios.')
+            print("Im in")
         else:
             conn = sqlite3.connect('inventario.db')
             cursor = conn.cursor()
@@ -332,7 +333,7 @@ def activate_item():
             cursor.execute('''
             INSERT INTO historial (Tipo, Detalles, Trabajador_id, Fecha, Item_id)
             VALUES (?,?,?,DATETIME('now'),?);
-            ''',("Eliminar", comment, worker_id, id))
+            ''',("Reactivar", comment, worker_id, id))
 
             # Se confirma el cambio y cierra la conexión
             conn.commit()
