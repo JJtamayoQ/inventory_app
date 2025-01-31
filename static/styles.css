@@ -42,10 +42,16 @@ nav {
     text-align: left;
 }
 
-.worker {
-    padding: 2%;
-    margin-top: 2%;
-    margin-bottom: 2%;
-    border-radius: 10px;
-    background-color: #ccc;
+.modal-header, .modal-footer {
+    background-color: rgb(128, 32, 32);
+    color: wheat;
+}
+
+.modal-footer select, textarea {
+    background-color: rgb(166, 106, 106);
+    color: white;
+}
+
+.btn-close {
+    background-color: wheat;
 }

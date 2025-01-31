@@ -114,12 +114,14 @@
         </table>
     </div>
 
-    <div class="container text-center">
+    <!-- Botón de agregar insumo -->
+    <div class="container mb-3 text-center">
         <div class="row justify-content-center">
-            <div class="col-">
+            <div class="col">
                 <button type="button" class="btn btn-success"
                 data-bs-toggle="modal"
                 data-bs-target="#addModal">
+                    <i class="bi bi-plus-circle"></i>
                     Añadir Insumo
                 </button>
             </div>
@@ -166,7 +168,9 @@
                                 {% endfor %}
                             </select>
                         </div>
-                        <div class="container worker">
+                    </div>
+                    <div class="modal-footer">
+                        <div class="row justify-content-center">
                             <div class="mb-3">
                                 <label for="edit-worker" class="form-label">Responsable</label>
                                 <select class="form-select" id="edit-worker" name="worker" required>
@@ -181,8 +185,6 @@
                                 <textarea class="form-control" id="edit-comment" name="comment" placeholder="Agregue una descripción de la edición, si es necesario"></textarea>
                             </div>
                         </div>
-                    </div>
-                    <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                         <button type="submit" class="btn btn-success">Guardar cambios</button>
                     </div>
@@ -242,7 +244,9 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="container worker">
+                    </div>
+                    <div class="modal-footer">
+                        <div class="row justify-content-center">
                             <div class="mb-3">
                                 <label for="entry-worker" class="form-label">Responsable</label>
                                 <select class="form-select" id="entry-worker" name="worker" required>
@@ -257,8 +261,6 @@
                                 <textarea class="form-control" id="entry-comment" name="comment" placeholder="Agregue una descripción de la edición, si es necesario"></textarea>
                             </div>
                         </div>
-                    </div>
-                    <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                         <button type="submit" class="btn btn-success">Actualizar</button>
                     </div>
@@ -279,21 +281,23 @@
                     <div class="modal-body">
                         <input type="hidden" name="id" id="delete-id">
                         <p>¿Está seguro de que desea eliminar <strong id="delete-name"></strong> del inventario?</p>
-                        <div class="mb-3">
-                            <label for="delete-worker" class="form-label">Responsable</label>
-                            <select class="form-select" id="delete-worker" name="worker" required>
-                                <option selected value="">Seleccione una opción</option>
-                                {% for worker in workers %}
-                                <option value="{{ worker.id }}">{{ worker.nombre }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="delete-comment" class="form-label">Comentarios</label>
-                            <textarea class="form-control" id="delete-comment" name="comment" placeholder="Agregue una descripción de la edición si es necesario"></textarea>
-                        </div>
                     </div>
                     <div class="modal-footer">
+                        <div class="row justify-content-center">
+                            <div class="mb-3">
+                                <label for="delete-worker" class="form-label">Responsable</label>
+                                <select class="form-select" id="delete-worker" name="worker" required>
+                                    <option selected value="">Seleccione una opción</option>
+                                    {% for worker in workers %}
+                                    <option value="{{ worker.id }}">{{ worker.nombre }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="delete-comment" class="form-label">Comentarios</label>
+                                <textarea class="form-control" id="delete-comment" name="comment" placeholder="Agregue una descripción de la edición si es necesario"></textarea>
+                            </div>
+                        </div>
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                         <button type="submit" class="btn btn-danger">Eliminar</button>
                     </div>
@@ -312,19 +316,58 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <div class="row">
-                            <div class="col-md-4">
-                                <input type="text" class="form-control" id="addName">
-                                <label for="addName" class="form-label">Nombre del insumo</label>
+                        <div class="row mb-3">
+                            <div class="col-xl-4">
+                                <label for="add-name" class="form-label">Nombre - Marca</label>
+                                <input type="text" class="form-control" id="add-name" name="name" placeholder="ej. Marcador - Pelikan" required>
                             </div>
-                            <div class="col-md-4">
-                                <input type="number" class="form-control" id="addDetails">
-                                <label for="addDetails" class="form-label">Cantidad</label>
+                            <div class="col-xl-1">
+                                <label for="add-quantity" class="form-label">Cantidad</label>
+                                <input type="number" class="form-control" id="add-quantity" name="quantity" value="1" min="1" required>
                             </div>
-                            <div class="col-md-4">
-                                <input type="text" class="form-control" id="addQuantity">
-                                <label for="addQuantity" class="form-label">Empaque</label>
+                            <div class="col-xl-2">
+                                <label for="add-package" class="form-label">Empaque</label>
+                                <select class="form-select" id="add-package" name="package" required>
+                                    <option value="">Seleccione</option>
+                                    {% for package in packages %}
+                                    <option value="{{ package.id }}">{{ package.nombre }}</option>
+                                    {% endfor %}
+                                </select>
                             </div>
+                            <div class="col-xl-2">
+                                <label for="add-location" class="form-label">Ubicación</label>
+                                <select class="form-select" id="add-location" name="location" required>
+                                    <option value="">Seleccione</option>
+                                    {% for location in locations %}
+                                    <option value="{{ location.id }}">{{ location.nombre }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-xl-3">
+                                <label for="add-details" class="form-label">Detalles</label>
+                                <textarea class="form-control" id="add-details" name="details" placeholder="Detalles del insumo" required></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <div class="col-xl-6 mx-auto">
+                            <div class="col">
+                                <label for="add-worker" class="form-label">Responsable</label>
+                                <select class="form-select" id="add-worker" name="worker" required>
+                                    <option selected value="">Seleccione una opción</option>
+                                    {% for worker in workers %}
+                                    <option value="{{ worker.id }}">{{ worker.nombre }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col">
+                                <label for="add-comment" class="form-label">Comentarios</label>
+                                <textarea class="form-control" id="add-comment" name="comment" placeholder="Agregue una descripción de la edición, si es necesario"></textarea>
+                            </div>
+                        </div>
+                        <div class="col-xl-3">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-success">Agregar</button>
                         </div>
                     </div>
                 </form>

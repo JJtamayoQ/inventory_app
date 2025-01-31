@@ -4,6 +4,7 @@ import sqlite3
 app = Flask(__name__)
 app.secret_key = 'St4kes_55*'  # Clave segura
 
+## ---------- MÉTODOS PERSONALIZADOS ----------- ##
 # Definir el estado para el valor nuevo de cantidad
 def getQuantityStatus(former_quantity, new_quantity):
     if former_quantity != 0:
@@ -15,8 +16,9 @@ def getQuantityStatus(former_quantity, new_quantity):
             return 'danger' # Rojo
     else:
         return 'danger' # Rojo
-    
-# Ruta principal para mostrar el inventario
+
+## ---------- RUTAS INDEX ------------- ##
+# Ruta para mostrar la tabla de inventario
 @app.route('/')
 def index():
     # Conectar a la base de datos SQLite
@@ -74,92 +76,6 @@ def index():
                            packages=packages_dict, 
                            locations=locations_dict,
                            workers=workers_dict)
-
-# Ruta para mostra lista de insumos inactivos
-@app.route('/inactive')
-def inactive():
-    # Conectar a la base de datos SQLite
-    conn = sqlite3.connect('inventario.db')
-    cursor = conn.cursor()
-
-    # Realizar la consulta para mostrar tabla de insumos
-    items = cursor.execute('''
-    SELECT
-        insumos.Item_id,
-        insumos.Activo,
-        insumos.Nombre,
-        insumos.Detalles,
-        insumos.Cantidad,
-        empaques.Empaque,
-        ubicaciones.Lugar
-    FROM insumos
-    INNER JOIN empaques ON insumos.Empaque_id = empaques.Empaque_id
-    INNER JOIN ubicaciones ON insumos.Ubicacion_id = ubicaciones.Ubicacion_id
-    WHERE insumos.Activo = FALSE;
-    ''').fetchall()
-
-    workers = cursor.execute('''
-    SELECT Trabajador_id, Nombre_Apellido FROM trabajadores;
-    ''').fetchall()
-
-    conn.close()
-
-    ## Transforma la lista de tuplas en lista de diccionarios JSON friendly
-    # Índices de las columnas
-    colums_items = ["id","activo","nombre","detalles","cantidad","empaque","ubicacion"]
-    colums_worker = ["id","nombre"]
-    items_dict = [dict(zip(colums_items, row)) for row in items]
-    workers_dict = [dict(zip(colums_worker, row)) for row in workers]
-
-    return render_template('inactive.html', items=items_dict, workers=workers_dict)
-
-# Ruta para mostra la lista de trabajadores
-@app.route('/workers')
-def workers():
-    # Conectar a la base de datos SQLite
-    conn = sqlite3.connect('inventario.db')
-    cursor = conn.cursor()
-
-    workers = cursor.execute('''
-    SELECT * FROM trabajadores;
-    ''').fetchall()
-
-    conn.close()
-
-    ## Transforma la lista de tuplas en lista de diccionarios JSON friendly
-    # Índices de las columnas
-    colums_worker = ["id","nombre","dependencia","cargo","correo"]
-    workers_dict = [dict(zip(colums_worker, row)) for row in workers]
-
-    return render_template('workers.html', workers=workers_dict)
-
-# Ruta para mostrar el historial
-@app.route('/history')
-def history():
-    # Conectar a la base de datos SQLite
-    conn = sqlite3.connect('inventario.db')
-    cursor = conn.cursor()
-
-    # Realizar la consulta para mostrar tabla de historial
-    history = cursor.execute('''
-    SELECT 
-        historial.Fecha,
-        insumos.Nombre,
-        historial.Tipo,
-        historial.Detalles,
-        trabajadores.Nombre_Apellido
-    FROM historial
-    INNER JOIN insumos ON historial.Item_id = insumos.Item_id
-    INNER JOIN trabajadores ON historial.Trabajador_id = trabajadores.Trabajador_id;                                                   
-    ''').fetchall()
-
-    conn.close()
-
-    ## Transforma la lista de tuplas en lista de diccionarios JSON friendly
-    # Índices de las columnas
-    column_history = ["date","name","type","details","worker"]
-    history_dict = [dict(zip(column_history, row)) for row in history]
-    return render_template('history.html', histories=history_dict)
 
 # Ruta para modificar el registro de insumos
 @app.route('/edit', methods=('GET', 'POST'))
@@ -306,6 +222,100 @@ def delete_item():
             
             return redirect(url_for('index'))
 
+# Ruta para agregar insumos nuevos
+@app.route('/add_item', methods=('GET', 'POST'))
+def add_item():
+    if request.method == 'POST':
+        name = request.form['name']
+        quantity = request.form['quantity']
+        package_id = request.form['package']
+        location_id = request.form['location']
+        details = request.form['details']
+        worker_id = request.form['worker']
+        comment = request.form['comment']
+
+        print(name+' '+quantity+' '+package_id+' '+location_id+' '+details+' '+worker_id+' '+comment)
+
+        if not name or not quantity or not package_id or not location_id or not details or not worker_id:
+            flash('Todos los campos son obligatorios.')
+        else:
+            conn = sqlite3.connect('inventario.db')
+            cursor = conn.cursor()
+
+            # Inserta el nuevo registro
+            cursor.execute('''
+            INSERT INTO insumos (
+                Activo,
+                Nombre,
+                Detalles,
+                Cantidad,
+                Cantidad_Inicial,
+                Estado_id,
+                Ubicacion_id,
+                Empaque_id)
+            VALUES (?,?,?,?,?,?,?,?);
+            ''',(True,name,details,quantity,quantity,1,     # Default: Insumo activo,
+                 location_id,package_id))                   # cantidad inicial igual a cantidad ingresada,
+                                                            # estado 'success'=1
+            
+            # Se confirma el cambio
+            conn.commit()
+
+            # Se obtiene el id del insumo ingresado
+            id = cursor.lastrowid
+            
+            # Registra en el historial de cambios
+            cursor.execute('''
+            INSERT INTO historial (Tipo, Detalles, Trabajador_id, Fecha, Item_id)
+            VALUES (?,?,?, DATETIME('now'),?);
+            ''',("Nuevo ingreso", comment, worker_id,id))
+
+            # Se confirma el cambio y cierra la conexión
+            conn.commit()
+            conn.close()
+            
+            return redirect(url_for('index'))
+
+
+## ---------- RUTAS INACTIVE ------------- ##
+# Ruta para mostra tabla de insumos inactivos
+@app.route('/inactive')
+def inactive():
+    # Conectar a la base de datos SQLite
+    conn = sqlite3.connect('inventario.db')
+    cursor = conn.cursor()
+
+    # Realizar la consulta para mostrar tabla de insumos
+    items = cursor.execute('''
+    SELECT
+        insumos.Item_id,
+        insumos.Activo,
+        insumos.Nombre,
+        insumos.Detalles,
+        insumos.Cantidad,
+        empaques.Empaque,
+        ubicaciones.Lugar
+    FROM insumos
+    INNER JOIN empaques ON insumos.Empaque_id = empaques.Empaque_id
+    INNER JOIN ubicaciones ON insumos.Ubicacion_id = ubicaciones.Ubicacion_id
+    WHERE insumos.Activo = FALSE;
+    ''').fetchall()
+
+    workers = cursor.execute('''
+    SELECT Trabajador_id, Nombre_Apellido FROM trabajadores;
+    ''').fetchall()
+
+    conn.close()
+
+    ## Transforma la lista de tuplas en lista de diccionarios JSON friendly
+    # Índices de las columnas
+    colums_items = ["id","activo","nombre","detalles","cantidad","empaque","ubicacion"]
+    colums_worker = ["id","nombre"]
+    items_dict = [dict(zip(colums_items, row)) for row in items]
+    workers_dict = [dict(zip(colums_worker, row)) for row in workers]
+
+    return render_template('inactive.html', items=items_dict, workers=workers_dict)
+
 # Ruta para activar el registro de insumos
 @app.route('/activate_item', methods=('GET', 'POST'))
 def activate_item():
@@ -340,6 +350,56 @@ def activate_item():
             conn.close()
             
             return redirect(url_for('inactive'))
+
+## ---------- RUTAS HISTORY ------- ##
+# Ruta para mostrar tabla de historial
+@app.route('/history')
+def history():
+    # Conectar a la base de datos SQLite
+    conn = sqlite3.connect('inventario.db')
+    cursor = conn.cursor()
+
+    # Realizar la consulta para mostrar tabla de historial
+    history = cursor.execute('''
+    SELECT 
+        historial.Fecha,
+        insumos.Nombre,
+        historial.Tipo,
+        historial.Detalles,
+        trabajadores.Nombre_Apellido
+    FROM historial
+    INNER JOIN insumos ON historial.Item_id = insumos.Item_id
+    INNER JOIN trabajadores ON historial.Trabajador_id = trabajadores.Trabajador_id;                                                   
+    ''').fetchall()
+
+    conn.close()
+
+    ## Transforma la lista de tuplas en lista de diccionarios JSON friendly
+    # Índices de las columnas
+    column_history = ["date","name","type","details","worker"]
+    history_dict = [dict(zip(column_history, row)) for row in history]
+    return render_template('history.html', histories=history_dict)
+
+## ---------- RUTAS WORKERS ------------ ##
+# Ruta para mostra la tabla de trabajadores
+@app.route('/workers')
+def workers():
+    # Conectar a la base de datos SQLite
+    conn = sqlite3.connect('inventario.db')
+    cursor = conn.cursor()
+
+    workers = cursor.execute('''
+    SELECT * FROM trabajadores;
+    ''').fetchall()
+
+    conn.close()
+
+    ## Transforma la lista de tuplas en lista de diccionarios JSON friendly
+    # Índices de las columnas
+    colums_worker = ["id","nombre","dependencia","cargo","correo"]
+    workers_dict = [dict(zip(colums_worker, row)) for row in workers]
+
+    return render_template('workers.html', workers=workers_dict)
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5001)
