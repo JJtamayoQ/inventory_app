@@ -6,7 +6,6 @@ const editModalDetailsInput = editModal.querySelector('#edit-details');
 const editModalQuantityInput = editModal.querySelector('#edit-quantity');
 const editModalPackageSelect = editModal.querySelector('#edit-package');
 const editModalLocationSelect = editModal.querySelector('#edit-location');
-const editModalWorkerSelect = editModal.querySelector('#edit-worker')
 editModal.addEventListener('show.bs.modal', event => {
     // Button that triggered the modal
     const button = event.relatedTarget;
