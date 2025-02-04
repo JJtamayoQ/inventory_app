@@ -65,8 +65,9 @@ df_insumos.drop(columns=['Lugar'], inplace=True)
 
 # Agregar la columna Cantidad_Inicial para el control del estado del insumo
 df_insumos['Cantidad_Inicial'] = df_insumos['Cantidad']
-# Agregar la columna 'Activo' para deshabilitar("eliminar") insumos
+# Agregar la columna 'Activo' para deshabilitar("eliminar") insumos y trabajadores
 df_insumos['Activo'] = [True]*df_insumos['Nombre'].size
+df_usuarios['Activo'] = [True]*df_usuarios['Nombre_Apellido'].size
 
 # Definir el estado de cada insumo
 df_insumos['Estado_id'] = np.where(df_insumos['Cantidad'] == 0, 3, 1)
@@ -87,6 +88,7 @@ cursor = conn.cursor()
 cursor.execute('''
 CREATE TABLE IF NOT EXISTS trabajadores (
     Trabajador_id INTEGER PRIMARY KEY,
+    Activo BOOL NOT NULL,
     Nombre_Apellido TEXT NOT NULL,
     Dependencia TEXT NOT NULL,
     Cargo TEXT NOT NULL,

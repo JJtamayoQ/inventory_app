@@ -326,8 +326,8 @@ def activate_item():
 
         if not id or not worker_id:
             flash('Todos los campos son obligatorios.')
-            print("Im in")
         else:
+            # Conecta con la base de datos
             conn = sqlite3.connect('inventario.db')
             cursor = conn.cursor()
 
@@ -389,17 +389,75 @@ def workers():
     cursor = conn.cursor()
 
     workers = cursor.execute('''
-    SELECT * FROM trabajadores;
+    SELECT * FROM trabajadores
+    WHERE trabajadores.Activo = TRUE;
     ''').fetchall()
 
     conn.close()
 
     ## Transforma la lista de tuplas en lista de diccionarios JSON friendly
     # Índices de las columnas
-    colums_worker = ["id","nombre","dependencia","cargo","correo"]
+    colums_worker = ["id","activo","nombre","dependencia","cargo","correo"]
     workers_dict = [dict(zip(colums_worker, row)) for row in workers]
 
     return render_template('workers.html', workers=workers_dict)
+
+@app.route('/edit_worker', methods=('GET','POST'))
+def edit_worker():
+    if request.method == 'POST':
+        id = request.form['id']
+        name = request.form['name']
+        branch = request.form['branch']
+        position = request.form['position']
+        email = request.form['email']
+
+        if not id or not name or not branch or not position or not email:
+            flash('Todos los campos son obligatorios.')
+        else:
+            # Conectar a la base de datos SQLite
+            conn = sqlite3.connect('inventario.db')
+            cursor = conn.cursor()
+
+            # Actualiza los campos del trabajador con el id
+            cursor.execute('''
+            UPDATE trabajadores
+            SET
+                Nombre_Apellido = ?,
+                Dependencia = ?,
+                Cargo = ?,
+                Correo = ?
+            WHERE Trabajador_id = ?;
+            ''',(name,branch,position,email,id))
+
+            # Se confirma el cambio y cierra la conexión
+            conn.commit()
+            conn.close()
+            return redirect(url_for('workers'))
+
+@app.route('/delete_worker', methods=('GET','POST'))
+def delete_worker():
+    if request.method == 'POST':
+        id = request.form['id']
+
+        if not id:
+            flash('Todos los campos son obligatorios.')
+        else:
+            # Conectar a la base de datos SQLite
+            conn = sqlite3.connect('inventario.db')
+            cursor = conn.cursor()
+
+            # Desactiva el trabajador para no mostrarlo más
+            cursor.execute('''
+            UPDATE trabajadores
+            SET
+                Activo = ?
+            WHERE Trabajador_id = ?;
+            ''',(False, id))
+
+            # Se confirma el cambio y cierra la conexión
+            conn.commit()
+            conn.close()
+            return redirect(url_for('workers'))
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5001)

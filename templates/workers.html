@@ -95,6 +95,20 @@
         </table>
     </div>
 
+    <!-- Botón de agregar trabajador -->
+    <div class="container mb-3 text-center">
+        <div class="row justify-content-center">
+            <div class="col">
+                <button type="button" class="btn btn-success"
+                data-bs-toggle="modal"
+                data-bs-target="#addModal">
+                    <i class="bi bi-plus-circle"></i>
+                    Añadir Trabajador
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Modales -->
     <!-- Modal Editar -->
     <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
@@ -122,7 +136,7 @@
                         </div>
                         <div class="mb-3">
                             <label for="edit-position" class="form-label">Cargo</label>
-                            <select class="form-select" id="edit-position" name="edit-position" required>
+                            <select class="form-select" id="edit-position" name="position" required>
                                 <option value="">Seleccione</option>
                                 <option value="TÉCNICO">TÉCNICO</option>
                                 <option value="ASISTENTE DE COORD.">ASISTENTE DE COORD.</option>
@@ -135,21 +149,6 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <div class="row justify-content-center">
-                            <div class="mb-3">
-                                <label for="edit-worker" class="form-label">Responsable</label>
-                                <select class="form-select" id="edit-worker" name="worker" required>
-                                    <option selected value="">Seleccione una opción</option>
-                                    {% for worker in workers %}
-                                    <option value="{{ worker.id }}">{{ worker.nombre }}</option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-                            <div class="mb-3">
-                                <label for="edit-comment" class="form-label">Comentarios</label>
-                                <textarea class="form-control" id="edit-comment" name="comment" placeholder="Agregue una descripción de la edición, si es necesario"></textarea>
-                            </div>
-                        </div>
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                         <button type="submit" class="btn btn-success">Guardar cambios</button>
                     </div>
@@ -172,21 +171,6 @@
                         <p>¿Está seguro de que desea eliminar <strong id="delete-name"></strong> de la lista de trabajadores?</p>
                     </div>
                     <div class="modal-footer">
-                        <div class="row justify-content-center">
-                            <div class="mb-3">
-                                <label for="delete-worker" class="form-label">Responsable</label>
-                                <select class="form-select" id="delete-worker" name="worker" required>
-                                    <option selected value="">Seleccione una opción</option>
-                                    {% for worker in workers %}
-                                    <option value="{{ worker.id }}">{{ worker.nombre }}</option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-                            <div class="mb-3">
-                                <label for="delete-comment" class="form-label">Comentarios</label>
-                                <textarea class="form-control" id="delete-comment" name="comment" placeholder="Agregue una descripción de la edición, si es necesario"></textarea>
-                            </div>
-                        </div>
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                         <button type="submit" class="btn btn-danger">Eliminar</button>
                     </div>
@@ -206,54 +190,37 @@
                     </div>
                     <div class="modal-body">
                         <div class="row mb-3">
-                            <div class="col-xl-4">
-                                <label for="add-name" class="form-label">Nombre</label>
-                                <input type="text" class="form-control" id="add-name" name="name" placeholder="ej. Marcador - Pelikan" required>
+                            <div class="col-xl-3">
+                                <label for="add-name" class="form-label">Nombre y Apellido</label>
+                                <input type="text" class="form-control" id="add-name" name="name" placeholder="ej: JIMMY TAMAYO" required>
                             </div>
-                            <div class="col-xl-1">
+                            <div class="col-xl-3">
                                 <label for="add-branch" class="form-label">Dependencia</label>
-                                <input type="number" class="form-control" id="add-branch" name="branch" value="1" min="1" required>
-                            </div>
-                            <div class="col-xl-2">
-                                <label for="add-package" class="form-label">Cargo</label>
-                                <select class="form-select" id="add-package" name="package" required>
+                                <select class="form-select" id="add-branch" name="branch" required>
                                     <option value="">Seleccione</option>
-                                    {% for package in packages %}
-                                    <option value="{{ package.id }}">{{ package.nombre }}</option>
-                                    {% endfor %}
+                                    <option value="SALAS">SALAS</option>
+                                    <option value="LABORATORIOS">LABORATORIOS</option>
+                                    <option value="COORDINACION">COORDINACIÓN</option>
                                 </select>
                             </div>
-                            <div class="col-xl-2">
-                                <label for="add-location" class="form-label">Correo</label>
-                                <select class="form-select" id="add-location" name="location" required>
+                            <div class="col-xl-3">
+                                <label for="add-position" class="form-label">Cargo</label>
+                                <select class="form-select" id="add-position" name="position" required>
                                     <option value="">Seleccione</option>
-                                    {% for location in locations %}
-                                    <option value="{{ location.id }}">{{ location.nombre }}</option>
-                                    {% endfor %}
+                                    <option value="TÉCNICO">TÉCNICO</option>
+                                    <option value="ASISTENTE DE COORD.">ASISTENTE DE COORD.</option>
+                                    <option value="COORDINADOR">COORDINADOR</option>
                                 </select>
+                            </div>
+                            <div class="col-xl-3">
+                                <label for="add-email" class="form-label">Correo</label>
+                                <input type="email" class="form-control" id="add-email" name="email" placeholder="ej@gmail.com" required>
                             </div>
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <div class="col-xl-6 mx-auto">
-                            <div class="col">
-                                <label for="add-worker" class="form-label">Responsable</label>
-                                <select class="form-select" id="add-worker" name="worker" required>
-                                    <option selected value="">Seleccione una opción</option>
-                                    {% for worker in workers %}
-                                    <option value="{{ worker.id }}">{{ worker.nombre }}</option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-                            <div class="col">
-                                <label for="add-comment" class="form-label">Comentarios</label>
-                                <textarea class="form-control" id="add-comment" name="comment" placeholder="Agregue una descripción de la edición, si es necesario"></textarea>
-                            </div>
-                        </div>
-                        <div class="col-xl-3">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                            <button type="submit" class="btn btn-success">Agregar</button>
-                        </div>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-success">Agregar</button>
                     </div>
                 </form>
             </div>
