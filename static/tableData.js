@@ -12,6 +12,9 @@ $(document).ready( function () {
     var tableWorkers = $('#workers-table').DataTable({
         dom: 'ltip'
     });
+    var tableInactiveWorkers = $('#inactive_workers-table').DataTable({
+        dom: 'ltip'
+    });
 
     $('#searchFilter').on('keyup', function() {
         tableInventory.search(this.value).draw();
@@ -24,5 +27,8 @@ $(document).ready( function () {
     });
     $('#searchFilter').on('keyup', function() {
         tableWorkers.search(this.value).draw();
+    });
+    $('#searchFilter').on('keyup', function() {
+        tableInactiveWorkers.search(this.value).draw();
     });
 } );
