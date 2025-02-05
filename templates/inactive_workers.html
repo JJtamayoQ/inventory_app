@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="es">
+<html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Historial</title>
+    <title>Trabajadores inactivos</title>
 
     <!-- Boostrap icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
@@ -13,11 +13,9 @@
     <link href="https://cdn.datatables.net/2.2.1/css/dataTables.dataTables.css" rel="stylesheet">
     <!-- <link  href="../DataTables/datatables.min.css" rel="stylesheet"> -->
 
-
     <!-- CSS personalizado -->
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
-
 <body>
     <nav class="navbar navbar-expand-sm bg-dark border-bottom border-body" data-bs-theme="dark">
         <div class="container-fluid">
@@ -28,22 +26,22 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav">
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle active" aria-current="page" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             Insumos
                         </a>
                         <ul class="dropdown-menu">
                             <li><a class="dropdown-item" href="{{ url_for('index') }}">Inventario</a></li>
                             <li><a class="dropdown-item" href="{{ url_for('inactive') }}">Inactivos</a></li>
-                            <li><a class="dropdown-item active" aria-current="page" href="#">Historial</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('history') }}">Historial</a></li>
                         </ul>
                     </li>
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <a class="nav-link dropdown-toggle active" aria-current="page" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             Trabajadores
                         </a>
                         <ul class="dropdown-menu">
                             <li><a class="dropdown-item" href="{{ url_for('workers') }}">Lista</a></li>
-                            <li><a class="dropdown-item" href="{{ url_for('inactive_workers') }}">Inactivos</a></li>
+                            <li><a class="dropdown-item active" aria-current="page" href="#">Inactivos</a></li>
                         </ul>
                     </li>
                 </ul>
@@ -54,30 +52,63 @@
         </div>
     </nav>
 
-    <!-- Tabla de historial -->
+    <!-- Tabla de trabajadores -->
     <div class="table-responsive">
-        <table class="table table-striped table-hover align-middle" id="history-table">
+        <table class="table table-striped table-hover align-middle" id="workers-table">
             <thead class="table-secondary">
                 <tr>
-                    <th>Fecha</th>
-                    <th>Insumo</th>
-                    <th>Tipo</th>
-                    <th>Detalles</th>
-                    <th>Trabajador</th>
+                    <th>Id</th>
+                    <th>Nombre</th>
+                    <th>Dependencia</th>
+                    <th>Cargo</th>
+                    <th>Correo</th>
+                    <th>Activar</th>
                 </tr>
             </thead>
             <tbody>
-                {% for history in histories %}
+                {% for worker in workers %}
                     <tr>
-                        <td>{{ history.date }}</td>
-                        <td>{{ history.name }}</td>
-                        <td>{{ history.type }}</td>
-                        <td>{{ history.details }}</td>
-                        <td>{{ history.worker }}</td>
+                        <td>{{ worker.id }}</td>
+                        <td>{{ worker.nombre }}</td>
+                        <td>{{ worker.dependencia }}</td>
+                        <td>{{ worker.cargo }}</td>
+                        <td>{{ worker.correo }}</td>
+                        <td>
+                            <button type="button" class="btn btn-success"
+                            data-bs-toggle="modal"
+                            data-bs-target="#activateModal"
+                            data-bs-id="{{ worker.id }}"
+                            data-bs-name="{{ worker.nombre }}">
+                                <i class="bi bi-check2-circle"></i>
+                            </button>
+                        </td>
                     </tr>
                 {% endfor %}
             </tbody>
         </table>
+    </div>
+
+    <!-- Modals -->
+    <!-- Modal Activar Trabajador -->
+    <div class="modal fade" id="activateModal" tabindex="-1" aria-labelledby="activateModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form method="post" action="/activate_worker">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="activateModalLabel">Activar Trabajador</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" name="id" id="activate-id">
+                        <p>¿Está seguro de que desea activar nuevamente a <strong id="activate-name"></strong> en la lista de trabajadores?</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-success">Aceptar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
 
     <!-- Bootstrap JS -->
@@ -86,9 +117,9 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <!-- DataTable JS -->
     <script src="https://cdn.datatables.net/2.2.1/js/dataTables.js"></script>
-    <!-- <script src="../DataTables/datatables.min.js"></script> -->
     <!-- Scripts personalizados -->
     <script src="{{ url_for('static', filename='scripts.js') }}"></script>
+    <script src="{{ url_for('static', filename='activateModals.js') }}"></script>
     <script type="module" src="../static/tableData.js"></script>
 </body>
 </html>

@@ -36,8 +36,14 @@
                             <li><a class="dropdown-item" href="{{ url_for('history') }}">Historial</a></li>
                         </ul>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('workers') }}">Trabajadores</a>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Trabajadores
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{{ url_for('workers') }}">Lista</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('inactive_workers') }}">Inactivos</a></li>
+                        </ul>
                     </li>
                 </ul>
                 <form class="d-flex ms-auto" role="search">

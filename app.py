@@ -66,10 +66,15 @@ def index():
     colums_package = ["id","nombre"]
     colums_location = ["id","nombre"]
     colums_worker = ["id","nombre"]
+    # Diccionarios
     items_dict = [dict(zip(colums_items, row)) for row in items]
     packages_dict = [dict(zip(colums_package, row)) for row in packages]
     locations_dict = [dict(zip(colums_location, row)) for row in locations]
     workers_dict = [dict(zip(colums_worker, row)) for row in workers]
+    # Ordenar alfabéticamente
+    packages_dict = sorted(packages_dict, key=lambda x: x['nombre'])
+    locations_dict = sorted(locations_dict, key=lambda x: x['nombre'])
+    workers_dict = sorted(workers_dict, key=lambda x: x['nombre'])
 
     return render_template('index.html', 
                            items=items_dict, 
@@ -276,7 +281,6 @@ def add_item():
             
             return redirect(url_for('index'))
 
-
 ## ---------- RUTAS INACTIVE ------------- ##
 # Ruta para mostra tabla de insumos inactivos
 @app.route('/inactive')
@@ -311,8 +315,11 @@ def inactive():
     # Índices de las columnas
     colums_items = ["id","activo","nombre","detalles","cantidad","empaque","ubicacion"]
     colums_worker = ["id","nombre"]
+    # Lista de diccionarios
     items_dict = [dict(zip(colums_items, row)) for row in items]
     workers_dict = [dict(zip(colums_worker, row)) for row in workers]
+    # Ordenar alfabéticamente
+    workers_dict = sorted(workers_dict, key=lambda x: x['nombre'])
 
     return render_template('inactive.html', items=items_dict, workers=workers_dict)
 
@@ -331,7 +338,7 @@ def activate_item():
             conn = sqlite3.connect('inventario.db')
             cursor = conn.cursor()
 
-            # Desactiva el insumo para no mostrarlo más
+            # Activa el insumo para no mostrarlo más
             cursor.execute('''
             UPDATE insumos
             SET
@@ -390,18 +397,23 @@ def workers():
 
     workers = cursor.execute('''
     SELECT * FROM trabajadores
-    WHERE trabajadores.Activo = TRUE;
+    WHERE Activo = TRUE;
     ''').fetchall()
 
+    # Cierrar la conexión con la base de datos
     conn.close()
 
     ## Transforma la lista de tuplas en lista de diccionarios JSON friendly
     # Índices de las columnas
     colums_worker = ["id","activo","nombre","dependencia","cargo","correo"]
+    # Lsta de diccionarios
     workers_dict = [dict(zip(colums_worker, row)) for row in workers]
+    # Ordenar alfabéticamente
+    workers_dict = sorted(workers_dict, key=lambda x: x['nombre'])
 
     return render_template('workers.html', workers=workers_dict)
 
+# Ruta para editar los campos de trabajador
 @app.route('/edit_worker', methods=('GET','POST'))
 def edit_worker():
     if request.method == 'POST':
@@ -434,6 +446,7 @@ def edit_worker():
             conn.close()
             return redirect(url_for('workers'))
 
+# Ruta para desactivar registro de trabajadores
 @app.route('/delete_worker', methods=('GET','POST'))
 def delete_worker():
     if request.method == 'POST':
@@ -458,6 +471,90 @@ def delete_worker():
             conn.commit()
             conn.close()
             return redirect(url_for('workers'))
+
+# Ruta para añadir registro de trabajadores
+@app.route('/add_worker', methods=('GET','POST'))
+def add_worker():
+    if request.method == ('POST'):
+        name = request.form['name']
+        branch = request.form['branch']
+        position = request.form['position']
+        email = request.form['email']
+
+        if not name or not branch or not position or not email:
+            flash('Todos los campos son obligatorios.')
+        else:
+            # Conectar a la base de datos SQLite
+            conn = sqlite3.connect('inventario.db')
+            cursor = conn.cursor()
+
+            # Se ingresa el nuevo registro
+            cursor.execute('''
+            INSERT INTO trabajadores (
+                Activo,
+                Nombre_Apellido,
+                Dependencia,
+                Cargo,
+                Correo)
+            VALUES (?,?,?,?,?);
+            ''',(True,name,branch,position,email))
+
+            # Se confirman los cambios y se cierra la conexión
+            conn.commit()
+            conn.close()
+
+            return redirect(url_for('workers'))
+
+## ---------- RUTAS INACTIVE_WORKERS --- ##
+# Ruta para mostrar los trabajadores inactivos
+@app.route('/inactive_workers')
+def inactive_workers():
+    # Conectar a la base de datos
+    conn = sqlite3.connect('inventario.db')
+    cursor = conn.cursor()
+
+    # Seleccionar todos los trabajadores inactivos
+    workers = cursor.execute('''
+    SELECT * FROM trabajadores
+    WHERE Activo = FALSE;
+    ''').fetchall()
+
+    # Cierra la conexión con la base de datos
+    conn.close()
+
+    ## Transforma la lista de tuplas en lista de diccionarios JSON friendly
+    # Índices de las columnas
+    colums_worker = ["id","activo","nombre","dependencia","cargo","correo"]
+    workers_dict = [dict(zip(colums_worker, row)) for row in workers]
+
+    return render_template('inactive_workers.html', workers=workers_dict)
+
+@app.route('/activate_worker', methods=('GET','POST'))
+def activate_worker():
+    if request.method == 'POST':
+        id = request.form['id']
+        
+        if not id:
+            flash('Todos los campos son obligatorios.')
+        else:
+            # Conectar a la base de datos
+            conn = sqlite3.connect('inventario.db')
+            cursor = conn.cursor()
+
+            # Activa el trabajador para mostrarlo nuevamente
+            cursor.execute('''
+            UPDATE trabajadores
+            SET
+                Activo = ?
+            WHERE Trabajador_id = ?;
+            ''',(True,id))
+
+            # Confirma el cambio y cierra la conexión
+            conn.commit()
+            conn.close()
+
+            return redirect(url_for('inactive_workers'))
+    
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5001)
