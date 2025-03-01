@@ -144,8 +144,9 @@ def update_quantity():
         action = request.form['action']
         current_quantity = int(request.form['quantity'])
         quantity = int(request.form['new_quantity'])
-        comment = request.form['comment']
+        comment = str(request.form['comment'])
         worker_id = request.form['worker']
+        type = ""
 
         if not id or not action or not current_quantity or not quantity:
             flash('Todos los campos son obligatorios.')
@@ -154,8 +155,12 @@ def update_quantity():
             conn = sqlite3.connect('inventario.db')
             cursor = conn.cursor()
             if action == 'add':
+                type = "Entrada"
+                comment = comment+" (añadir "+str(quantity)+")"
                 new_quantity = current_quantity + quantity
             else:
+                type = "Salida"
+                comment = comment+" (retirar "+str(quantity)+")"
                 new_quantity = current_quantity - quantity
             
             # Se obtiene cantidad inicial
@@ -186,7 +191,7 @@ def update_quantity():
             cursor.execute('''
             INSERT INTO historial (Tipo, Detalles, Trabajador_id, Fecha, Item_id)
             VALUES (?,?,?,DATETIME('now'),?);
-            ''',("Entradas/Salidas", comment, worker_id, id))
+            ''',(type, comment, worker_id, id))
 
             # Se confirma el cambio y cierra la conexión
             conn.commit()

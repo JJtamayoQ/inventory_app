@@ -1,0 +1,15 @@
+2025-03-01 20:08:25.503: ERROR:app:Exception on /update_quantity [POST]
+2025-03-01 20:08:25.503: Traceback (most recent call last):
+2025-03-01 20:08:25.503:   File "C:\Users\Jimmy\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 1511, in wsgi_app
+2025-03-01 20:08:25.503:     response = self.full_dispatch_request()
+2025-03-01 20:08:25.503:   File "C:\Users\Jimmy\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 919, in full_dispatch_request
+2025-03-01 20:08:25.503:     rv = self.handle_user_exception(e)
+2025-03-01 20:08:25.503:   File "C:\Users\Jimmy\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 917, in full_dispatch_request
+2025-03-01 20:08:25.503:     rv = self.dispatch_request()
+2025-03-01 20:08:25.503:   File "C:\Users\Jimmy\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 902, in dispatch_request
+2025-03-01 20:08:25.503:     return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+2025-03-01 20:08:25.503:            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+2025-03-01 20:08:25.503:   File "C:\Users\Jimmy\Documents\LABs_projects\inventory_app\app.py", line 163, in update_quantity
+2025-03-01 20:08:25.503:     comment += " (retirar "+quantity+")"
+2025-03-01 20:08:25.503:                ~~~~~~~~~~~~^~~~~~~~~
+2025-03-01 20:08:25.503: TypeError: can only concatenate str (not "int") to str
