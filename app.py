@@ -1,8 +1,18 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
+import os
+from pathlib import Path
 import sqlite3
 
+from flask import Flask, render_template, request, redirect, url_for, flash
+
 app = Flask(__name__)
-app.secret_key = 'St4kes_55*'  # Clave segura
+app.secret_key = os.environ.get('SECRET_KEY', 'dev-secret-key')
+
+BASE_DIR = Path(__file__).resolve().parent
+DB_PATH = BASE_DIR / 'inventario.db'
+
+
+def get_db_connection():
+    return sqlite3.connect(DB_PATH)
 
 ## ---------- MÉTODOS PERSONALIZADOS ----------- ##
 # Definir el estado para el valor nuevo de cantidad
@@ -22,7 +32,7 @@ def getQuantityStatus(former_quantity, new_quantity):
 @app.route('/')
 def index():
     # Conectar a la base de datos SQLite
-    conn = sqlite3.connect('inventario.db')
+    conn = get_db_connection()
     cursor = conn.cursor()
 
     # Realizar la consulta para mostrar tabla de insumos
@@ -95,11 +105,12 @@ def edit():
         comment = request.form['comment']
         worker_id = request.form['worker']
         
-        if not id or not name or not quantity or not package or not location:
+        if not id or not name or quantity < 0 or not package or not location or not worker_id:
             flash('Todos los campos son obligatorios.')
+            return redirect(url_for('index'))
         else:
             # Actualiza todos los campos del insumo seleccionado
-            conn = sqlite3.connect('inventario.db')
+            conn = get_db_connection()
             cursor = conn.cursor()
 
             # Al modificar un insumo la cantidad se convierte en cantidad_inicial
@@ -148,17 +159,28 @@ def update_quantity():
         worker_id = request.form['worker']
         type = ""
 
-        if not id or not action or not current_quantity or not quantity:
+        if (
+            not id
+            or action not in ('add', 'subtract')
+            or current_quantity < 0
+            or quantity <= 0
+            or not worker_id
+        ):
             flash('Todos los campos son obligatorios.')
+            return redirect(url_for('index'))
         else:
             # Actualiza campos cantidad y estado del insumo seleccionado
-            conn = sqlite3.connect('inventario.db')
+            conn = get_db_connection()
             cursor = conn.cursor()
             if action == 'add':
                 type = "Entrada"
                 comment = comment+" (añadir "+str(quantity)+")"
                 new_quantity = current_quantity + quantity
             else:
+                if quantity > current_quantity:
+                    flash('No se puede retirar una cantidad mayor al inventario actual.')
+                    conn.close()
+                    return redirect(url_for('index'))
                 type = "Salida"
                 comment = comment+" (retirar "+str(quantity)+")"
                 new_quantity = current_quantity - quantity
@@ -209,7 +231,7 @@ def delete_item():
         if not id:
             flash('Todos los campos son obligatorios.')
         else:
-            conn = sqlite3.connect('inventario.db')
+            conn = get_db_connection()
             cursor = conn.cursor()
 
             # Desactiva el insumo para no mostrarlo más
@@ -244,12 +266,10 @@ def add_item():
         worker_id = request.form['worker']
         comment = request.form['comment']
 
-        print(name+' '+quantity+' '+package_id+' '+location_id+' '+details+' '+worker_id+' '+comment)
-
         if not name or not quantity or not package_id or not location_id or not details or not worker_id:
             flash('Todos los campos son obligatorios.')
         else:
-            conn = sqlite3.connect('inventario.db')
+            conn = get_db_connection()
             cursor = conn.cursor()
 
             # Inserta el nuevo registro
@@ -291,7 +311,7 @@ def add_item():
 @app.route('/inactive')
 def inactive():
     # Conectar a la base de datos SQLite
-    conn = sqlite3.connect('inventario.db')
+    conn = get_db_connection()
     cursor = conn.cursor()
 
     # Realizar la consulta para mostrar tabla de insumos
@@ -340,7 +360,7 @@ def activate_item():
             flash('Todos los campos son obligatorios.')
         else:
             # Conecta con la base de datos
-            conn = sqlite3.connect('inventario.db')
+            conn = get_db_connection()
             cursor = conn.cursor()
 
             # Activa el insumo para no mostrarlo más
@@ -368,7 +388,7 @@ def activate_item():
 @app.route('/history')
 def history():
     # Conectar a la base de datos SQLite
-    conn = sqlite3.connect('inventario.db')
+    conn = get_db_connection()
     cursor = conn.cursor()
 
     # Realizar la consulta para mostrar tabla de historial
@@ -397,7 +417,7 @@ def history():
 @app.route('/workers')
 def workers():
     # Conectar a la base de datos SQLite
-    conn = sqlite3.connect('inventario.db')
+    conn = get_db_connection()
     cursor = conn.cursor()
 
     workers = cursor.execute('''
@@ -432,7 +452,7 @@ def edit_worker():
             flash('Todos los campos son obligatorios.')
         else:
             # Conectar a la base de datos SQLite
-            conn = sqlite3.connect('inventario.db')
+            conn = get_db_connection()
             cursor = conn.cursor()
 
             # Actualiza los campos del trabajador con el id
@@ -461,7 +481,7 @@ def delete_worker():
             flash('Todos los campos son obligatorios.')
         else:
             # Conectar a la base de datos SQLite
-            conn = sqlite3.connect('inventario.db')
+            conn = get_db_connection()
             cursor = conn.cursor()
 
             # Desactiva el trabajador para no mostrarlo más
@@ -490,7 +510,7 @@ def add_worker():
             flash('Todos los campos son obligatorios.')
         else:
             # Conectar a la base de datos SQLite
-            conn = sqlite3.connect('inventario.db')
+            conn = get_db_connection()
             cursor = conn.cursor()
 
             # Se ingresa el nuevo registro
@@ -515,7 +535,7 @@ def add_worker():
 @app.route('/inactive_workers')
 def inactive_workers():
     # Conectar a la base de datos
-    conn = sqlite3.connect('inventario.db')
+    conn = get_db_connection()
     cursor = conn.cursor()
 
     # Seleccionar todos los trabajadores inactivos
@@ -543,7 +563,7 @@ def activate_worker():
             flash('Todos los campos son obligatorios.')
         else:
             # Conectar a la base de datos
-            conn = sqlite3.connect('inventario.db')
+            conn = get_db_connection()
             cursor = conn.cursor()
 
             # Activa el trabajador para mostrarlo nuevamente
