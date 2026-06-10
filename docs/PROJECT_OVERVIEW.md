@@ -22,6 +22,24 @@ changes.
 - `data/excel_to_sqlite.py`: rebuilds the root `inventario.db` from Excel files.
 - `data/pruebas.py`: read-only database smoke check.
 
+## Screenshots
+
+### Inventory Table
+
+![Inventory table](assets/screenshot-inventory-app.png)
+
+### Edit Item Modal
+
+![Edit item modal](assets/screenshot-inventory-app%201.png)
+
+### Delete Item Modal
+
+![Delete item modal](assets/screenshot-inventory-app%202.png)
+
+### Inventory Navigation
+
+![Inventory navigation menu](assets/screenshot-inventory-app%203.png)
+
 ## Main Routes
 
 | Route | Methods | Purpose |

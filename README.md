@@ -12,6 +12,24 @@ workers, stock movements, inactive records, and movement history.
 - Manage active and inactive workers.
 - Rebuild the SQLite database from the Excel files in `data/`.
 
+## Screenshots
+
+### Inventory
+
+![Inventory table](docs/assets/screenshot-inventory-app.png)
+
+### Edit Item
+
+![Edit item modal](docs/assets/screenshot-inventory-app%201.png)
+
+### Delete Item
+
+![Delete item modal](docs/assets/screenshot-inventory-app%202.png)
+
+### Navigation
+
+![Inventory navigation menu](docs/assets/screenshot-inventory-app%203.png)
+
 ## Project Structure
 
 ```txt
